@@ -10,7 +10,6 @@ import com.example.orderservice.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +23,7 @@ public class OrderService {
     OrderRepository orderRepository;
 
     @Autowired
-    WebClient webClient;
+    WebClient.Builder webClientBuilder;
 
     public void placeOrder(OrderRequest orderRequest) throws IllegalAccessException {
         Order order = new Order();
@@ -39,8 +38,8 @@ public class OrderService {
                 .toList();
 
         // check for availability in inventory service
-        InventoryResponse[] response = webClient.get()
-                                        .uri("http://localhost:8082/api/inventory", uriBuilder -> uriBuilder.queryParam("skus", skuCodes).build())
+        InventoryResponse[] response = webClientBuilder.build().get()
+                                        .uri("http://inventory-service/api/inventory", uriBuilder -> uriBuilder.queryParam("skus", skuCodes).build())
                                         .retrieve()
                                         .bodyToMono(InventoryResponse[].class)
                                         .block();
